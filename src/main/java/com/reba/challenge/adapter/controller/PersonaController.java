@@ -3,7 +3,7 @@ package com.reba.challenge.adapter.controller;
 import com.reba.challenge.adapter.controller.model.request.PersonaRequest;
 import com.reba.challenge.adapter.controller.model.response.PersonaResponse;
 import com.reba.challenge.application.exception.NotFoundException;
-import com.reba.challenge.application.port.in.ObtenerPersonaQuery;
+import com.reba.challenge.application.port.in.PersonaQuery;
 import com.reba.challenge.application.port.in.PersonaCommand;
 import com.reba.challenge.config.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PersonaController {
 
     private final PersonaCommand personaCommand;
-    private final ObtenerPersonaQuery obtenerPersonaQuery;
+    private final PersonaQuery personaQuery;
 
-    public PersonaController(PersonaCommand personaCommand, ObtenerPersonaQuery obtenerPersonaQuery) {
+    public PersonaController(PersonaCommand personaCommand, PersonaQuery personaQuery) {
         this.personaCommand = personaCommand;
-        this.obtenerPersonaQuery = obtenerPersonaQuery;
+        this.personaQuery = personaQuery;
     }
 
     @PostMapping
@@ -55,9 +55,9 @@ public class PersonaController {
     @GetMapping("/{nroDocumento}")
     public ResponseEntity<PersonaResponse> get(@PathVariable(name = "nroDocumento") String nroDocumento) {
         log.info("Looking Persona with id:: {}", nroDocumento);
-        var persona = obtenerPersonaQuery.obtenerByNroDocumento(nroDocumento)
+        var persona = personaQuery.obtenerByNroDocumento(nroDocumento)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.RESOURCE_NOT_FOUND_ERROR));
-        PersonaResponse personaResponse = PersonaResponse.fromDomain(persona);
+        var personaResponse = PersonaResponse.fromDomain(persona);
         return ResponseEntity.status(HttpStatus.OK).body(personaResponse.withStatus(HttpStatus.OK.getReasonPhrase()));
     }
 
