@@ -4,6 +4,6 @@ import com.reba.challenge.domain.Persona;
 
 import java.util.Optional;
 
-public interface ObtenerPersonaQuery {
+public interface PersonaQuery {
     Optional<Persona> obtenerByNroDocumento(String nroDocumento);
 }

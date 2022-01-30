@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.reba.challenge.adapter.jdbc.exception.BusinessException;
 import com.reba.challenge.application.exception.AdapterException;
+import com.reba.challenge.application.exception.NotFoundException;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,15 +18,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @ControllerAdvice
 public class ErrorHandler {
-    private static final String X_B3_TRACE_ID = "X-B3-TraceId";
-    private static final String X_B3_SPAN_ID = "X-B3-SpanId";
-    private static final String PROD_PROFILE = "prod";
+
     private final HttpServletRequest httpServletRequest;
 
 
@@ -52,6 +49,12 @@ public class ErrorHandler {
         return buildResponseError(HttpStatus.BAD_REQUEST, ex, ErrorCode.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handle(NotFoundException ex) {
+        log.error(HttpStatus.NOT_FOUND.getReasonPhrase(), ex);
+        return buildResponseError(HttpStatus.NOT_FOUND, ex, ErrorCode.RESOURCE_NOT_FOUND_ERROR);
+    }
+
     @ExceptionHandler(AdapterException.class)
     public ResponseEntity<ApiErrorResponse> handle(AdapterException ex) {
         log.error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(), ex);
@@ -60,16 +63,12 @@ public class ErrorHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handle(BusinessException ex) {
-        log.error(HttpStatus.FORBIDDEN.getReasonPhrase(), ex);
-        return buildResponseError(HttpStatus.FORBIDDEN, ex, ex.getCode());
+        log.error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(), ex);
+        return buildResponseError(HttpStatus.SERVICE_UNAVAILABLE, ex, ex.getCode());
     }
 
 
     private ResponseEntity<ApiErrorResponse> buildResponseError(HttpStatus httpStatus, Throwable ex, ErrorCode errorCode) {
-
-        final var queryString = Optional.ofNullable(httpServletRequest.getQueryString())
-            .orElse("");
-
 
         final var apiErrorResponse = ApiErrorResponse
             .builder()
@@ -78,7 +77,6 @@ public class ErrorHandler {
             .detail(String.format("%s: %s", ex.getClass().getCanonicalName(), ex.getMessage()))
             .status(httpStatus.value())
             .code(errorCode.value())
-            .id("")
             .resource(httpServletRequest.getRequestURI())
             .build();
 
@@ -103,11 +101,7 @@ public class ErrorHandler {
         @JsonProperty
         private String resource;
         @JsonProperty
-        private String id;
-        @JsonProperty
         private String detail;
-        @JsonProperty
-        private Map<String, String> metadata;
     }
 }
 
