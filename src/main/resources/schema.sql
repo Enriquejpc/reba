@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS PERSONA;
+DROP TABLE IF EXISTS CONTACTO;
+
+CREATE TABLE PERSONA
+(
+    nro_documento VARCHAR(250) PRIMARY KEY,
+    nombre        VARCHAR(250) NOT NULL,
+    edad          INT          NOT NULL
+);
+
+CREATE TABLE CONTACTO
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    persona_id VARCHAR(250) NOT NULL,
+    nombre     VARCHAR(250) NOT NULL,
+    telefono   VARCHAR(250) NOT NULL,
+    FOREIGN KEY (persona_id) REFERENCES PERSONA (nro_documento)
+);
+
+

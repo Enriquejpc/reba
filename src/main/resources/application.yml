@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:challengeDB
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: validate
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: false
+  sql:
+    init:
+      username: sa
+      password:
+      mode: always
+      platform: h2
+      schema-locations: classpath*:schema.sql
+      data-locations: classpath*:data-h2.sql
