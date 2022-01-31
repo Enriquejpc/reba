@@ -13,18 +13,18 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class SubscribirPersonaUseCase implements PersonaCommand {
+public class CUDPersonaUseCase implements PersonaCommand {
     private final PersonaRepository personaRepository;
-    private final ObtenerPersonaUseCase obtenerPersonaUseCase;
+    private final GetPersonaUseCase obtenerGetPersonaUseCase;
 
-    public SubscribirPersonaUseCase(PersonaRepository personaRepository, ObtenerPersonaUseCase obtenerPersonaUseCase) {
+    public CUDPersonaUseCase(PersonaRepository personaRepository, GetPersonaUseCase obtenerGetPersonaUseCase) {
         this.personaRepository = personaRepository;
-        this.obtenerPersonaUseCase = obtenerPersonaUseCase;
+        this.obtenerGetPersonaUseCase = obtenerGetPersonaUseCase;
     }
 
     @Override
     public Persona crear(Persona command) {
-        Optional<Persona> persona = obtenerPersonaUseCase.obtenerByNroDocumento(command.getNroDocumento());
+        Optional<Persona> persona = obtenerGetPersonaUseCase.obtenerByNroDocumento(command.getNroDocumento());
         if (persona.isPresent())
             throw new BusinessException(ErrorCode.RESOURCE_DUPLICATE_ERROR);
         return personaRepository.saveOrUpdate(command);
@@ -32,7 +32,7 @@ public class SubscribirPersonaUseCase implements PersonaCommand {
 
     @Override
     public Persona actualizar(Persona command) {
-        var persona = (obtenerPersonaUseCase.obtenerByNroDocumento(command.getNroDocumento()))
+        var persona = (obtenerGetPersonaUseCase.obtenerByNroDocumento(command.getNroDocumento()))
                 .orElseThrow(() -> new NotFoundException(ErrorCode.RESOURCE_NOT_FOUND_ERROR));
         var updatedPersona = Persona.builder()
                 .nroDocumento(persona.getNroDocumento())
@@ -45,7 +45,7 @@ public class SubscribirPersonaUseCase implements PersonaCommand {
 
     @Override
     public void borrar(String nroDocumento) {
-        var persona = (obtenerPersonaUseCase.obtenerByNroDocumento(nroDocumento))
+        var persona = (obtenerGetPersonaUseCase.obtenerByNroDocumento(nroDocumento))
                 .orElseThrow(() -> new NotFoundException(ErrorCode.RESOURCE_NOT_FOUND_ERROR));
         personaRepository.delete(persona.getNroDocumento());
     }
