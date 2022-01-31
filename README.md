@@ -78,4 +78,9 @@ Gradle, indexa mas rapido, maven genera mucho codigo, aunque los plugins estan b
 ## Ejecucion en local
 1. Pullear el codigo en el IDE(Espero usen intellij) desde: https://github.com/Enriquejpc/reba.git
 2. Run application
+ ### Usando Docker 
+   docker build -t com.reba/challenge:1.0 .
+   docker run -p 8080:8080 com.reba/challenge:1.0
+
+
 
