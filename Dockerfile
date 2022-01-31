@@ -1,9 +1,11 @@
-FROM openjdk:11.0.5-jdk-slim as builder
+FROM gradle:jdk11-alpine AS builder
 COPY . /app
 WORKDIR /app
-RUN ./gradlew clean build
+RUN gradle bootJar --no-daemon
+RUN ls -lrthF /app/build/libs
 
 FROM openjdk:11.0.5-jre-slim
-COPY --from=builder /app/build/libs/*.jar /app/challenge-0.0.1-SNAPSHOT.jar
+
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-server", "-jar", "/app/challenge-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-server", "-jar", "/app/app.jar"]
